@@ -31,7 +31,7 @@ string download_source(const string &source_url, const string &name,
         return "";
     }
 
-    string output_path = ".cache/" + name + "-" + version + ".tar.gz";
+    string output_path = ".cache/" + name + "-" + version + ".tar.bz2";
 
     // create .cache so it never fails to EBI.
     std::filesystem::create_directories(".cache");
@@ -41,35 +41,39 @@ string download_source(const string &source_url, const string &name,
         curl_easy_cleanup(curl);
         return "";
     }
-    // We set the main options here that allow us to download, write data, and
-    // follow redirects.
-    curl_easy_setopt(
-        curl, CURLOPT_URL,
-        source_url.c_str()); // sets the libcurl download to our tarball url,
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-                     write_callback); // registers our earlier function that
-                                      // allows data writing,
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA,
-                     &file); // writes the data we receive into a file,
-    curl_easy_setopt(
-        curl, CURLOPT_FOLLOWLOCATION,
-        1L); // then we enable follow redirects so we dont get cut off,
-    curl_easy_setopt(curl, CURLOPT_FAILONERROR,
-                     1L); // Some urls might return false positives so we enable
-                          // http error checking.
+
+    // Configure the source URL for the download.
+    curl_easy_setopt(curl, CURLOPT_URL, source_url.c_str());
+
+    // Register our callback to write incoming data.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+
+    // Pass the output file to our callback.
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
+
+    // Follow HTTP redirects.
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+    // Treat HTTP error responses (such as 404) as failures.
+    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+
+    // Require HTTPS and verify TLS certificates.
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+    curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "https");
+    curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "https");
 
     CURLcode result =
-        curl_easy_perform(curl); // The actual download process here.
+    curl_easy_perform(curl); // The actual download process here.
     std::cout << '\n';
     long http_code{0};
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-    std::cout << "HTTP status: " << http_code << '\n';
     // print a newline and make sure to exit if the download fails.
     file.close();
 
     if (result != CURLE_OK) {
         std::cerr << "Download failed: " << curl_easy_strerror(result) << '\n';
-
+        std::cout << "HTTP status: " << http_code << '\n';
         std::filesystem::remove(output_path);
         curl_easy_cleanup(curl);
         return "";

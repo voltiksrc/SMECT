@@ -3,6 +3,8 @@
 #include <string_view>
 #include "recipe.hpp"
 #include "download.hpp"
+#include "sha256.hpp"
+#include <filesystem>
 
 using std::string;
 
@@ -49,6 +51,13 @@ int main(int argc, char* argv[]) {
     if (command == "install") {
         Package info = read_recipe("recipes/" + package + "/package.toml");
 
+        std::string recipe_path = "recipes/" + package + "/package.toml";
+
+        if (!std::filesystem::is_regular_file(recipe_path)) {
+            std::cerr << "Package not found: " << package << '\n';
+            return 1;
+        }
+        
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
             std::cerr<<"Invalid or incomplete package recipe.\n";
             return 1;
@@ -56,6 +65,10 @@ int main(int argc, char* argv[]) {
         string archive = download_source(info.url, info.name, info.version);
 
         if (archive.empty()) {
+            return 1;
+        }
+
+        if (!verify_sha256(archive, info.sha256)) {
             return 1;
         }
     } else if (command == "remove") {

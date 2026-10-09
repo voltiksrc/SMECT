@@ -8,4 +8,4 @@ distro or package manager, then please contact me at: voltiksrc@gmail.com
 
 ## Status
 It's able to download a source tarball into a cache file and has
-sha256 verification
+sha256 verification.

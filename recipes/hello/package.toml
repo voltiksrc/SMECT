@@ -1,0 +1,9 @@
+[package]
+name = "hello"
+version = "2.12.2"
+
+[source]
+url = "https://ftp.gnu.org/gnu/hello/hello-2.12.2.tar.gz"
+
+[build]
+system = "make"

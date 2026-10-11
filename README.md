@@ -1,10 +1,33 @@
 # SMECT
-A C++ package manager that uses toml recipes to deliver very fast DEBI speeds.
+A C++ package manager that uses TOML recipes to deliver very fast DEBI speeds.
 
 ## Development
-It is an independent package manager that anyone can use, but im gonna implement it into my
-distro that im working on, if you would like to help develop either my
-distro or package manager, then please contact me at: voltiksrc@gmail.com
+It is an independent package manager that anyone can use, if you would like to help develop SMECT, then please contact me at: voltiksrc@gmail.com
+
+## Features
+- Source tarball downloads
+- TOML Recipes
+- SHA256 Verification
+
+## Dependencies
+- libarchive
+- libcurl
+- Meson
+- Ninja
+- 
+## Build
+```bash
+git clone https://github.com/voltiksrc/SMECT.git
+cd SMECT
+```
+```bash
+meson setup build
+meson compile -C build
+```
+## Install
+```bash
+sudo meson install -C build
+```
 
 ## Status
 It's able to download a source tarball into a cache file and has

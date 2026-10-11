@@ -14,7 +14,7 @@ It is an independent package manager that anyone can use, if you would like to h
 - libcurl
 - Meson
 - Ninja
-- 
+
 ## Build
 ```bash
 git clone https://github.com/voltiksrc/SMECT.git

@@ -10,6 +10,44 @@ using std::string;
 
 // DEBI means download, extract, build, and install.
 
+// Progress state
+struct Progress {
+    int last_percentage{-1};
+};
+
+// Progress callback
+int progress_callback(void* clientp, curl_off_t dltotal,
+                      curl_off_t dlnow, curl_off_t ultotal,
+                      curl_off_t ulnow) {
+    auto* progress = static_cast<Progress*>(clientp);
+
+    // Your existing progress bar logic here
+    if (dltotal > 0) {
+        int percentage;
+        const int bar_width = 20;
+        int filled;
+        // Calculations here:
+        percentage = static_cast<double>(dlnow) / dltotal * 100;
+        if (percentage != progress->last_percentage) {
+            filled = percentage * bar_width / 100;
+            std::cout<<"[";
+            // This prints the # in the bar while it fills
+            for (int i = 0; i < filled; i++) {
+                std::cout<<"#";
+            }
+            // This prints the - as empty space so we can tell the progress
+            for (int i = filled; i < bar_width; i++) {
+                std::cout<<"-";
+            }
+            std::cout<<"]"; 
+            std::cout<<" "<<percentage<<"%\r"<<std::flush; 
+            progress->last_percentage = percentage;
+        }
+    }
+    return 0;
+}
+
+
 // Main libcurl function that writes our data to a file so we can DEBI
 // peacefully.
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
@@ -41,10 +79,10 @@ string download_source(const string &source_url, const string &name,
         }
     }
 
-    string output_path = ".cache/" + name + "-" + version + extension;
+    string output_path = ".cache/smect/" + name + "-" + version + extension;
 
-    // Create .cache so it never fails to DEBI.
-    std::filesystem::create_directories(".cache");
+    // Create .cache/smect so it never fails to DEBI.
+    std::filesystem::create_directories(".cache/smect");
     std::ofstream file(output_path, std::ios::binary);
     if (!file) {
         std::cerr << "Failed to open output file\n";
@@ -67,6 +105,14 @@ string download_source(const string &source_url, const string &name,
     // Treat HTTP error responses (such as 404) as failures.
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 
+    Progress progress{};
+    // Enable progress tracking
+    curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_callback);
+
+    curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &progress);
+ 
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+    
     // Require HTTPS and verify TLS certificates.
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
@@ -76,20 +122,19 @@ string download_source(const string &source_url, const string &name,
     std::cout<<"Downloading "<<name<<"-"<<version<<"...\n";
     CURLcode result = curl_easy_perform(curl); // The actual download process here.
     std::cout << '\n';
-    long http_code{0};
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+    // long http_code{0};
+    // curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
     // print a newline and make sure to exit if the download fails.
     file.close();
 
     if (result != CURLE_OK) {
         std::cerr << "Download failed: " << curl_easy_strerror(result) << '\n';
-        std::cout << "HTTP status: " << http_code << '\n';
+       // std::cout << "HTTP status: " << http_code << '\n';
         std::filesystem::remove(output_path);
         curl_easy_cleanup(curl);
         return "";
     }
-    // close file and free resources so we dont memory leak
-    file.close();
+    // free resources so we dont memory leak
     curl_easy_cleanup(curl);
     return output_path;
 }

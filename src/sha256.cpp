@@ -100,5 +100,6 @@ bool verify_sha256(const std::string& file_path,
     }
 
     std::cout << "SHA-256 verified successfully.\n";
+    std::cout << "HASH DOES = "<<actual_hash<<".\n";
     return true;
 }

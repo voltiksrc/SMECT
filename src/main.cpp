@@ -49,14 +49,14 @@ int main(int argc, char* argv[]) {
     }
     string package = argv[2];
     if (command == "install") {
-        Package info = read_recipe("recipes/" + package + "/package.toml");
-
         std::string recipe_path = "recipes/" + package + "/package.toml";
-
+        
         if (!std::filesystem::is_regular_file(recipe_path)) {
             std::cerr << "Package not found: " << package << '\n';
             return 1;
         }
+
+        Package info = read_recipe(recipe_path);
         
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
             std::cerr<<"Invalid or incomplete package recipe.\n";

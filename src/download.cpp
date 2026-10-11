@@ -4,12 +4,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 using std::string;
 
-// EBI means extract, build, and install.
+// DEBI means download, extract, build, and install.
 
-// Main libcurl function that writes our data to a file so we can EBI
+// Main libcurl function that writes our data to a file so we can DEBI
 // peacefully.
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
     size_t total = size * nmemb;
@@ -31,9 +32,18 @@ string download_source(const string &source_url, const string &name,
         return "";
     }
 
-    string output_path = ".cache/" + name + "-" + version + ".tar.bz2";
+    string extension;
 
-    // create .cache so it never fails to EBI.
+    for (const std::string_view ext : {".tar.gz", ".tar.xz", ".tar.bz2", ".tar.zst", ".zip"}) {
+        if (source_url.find(ext) != string::npos) {
+            extension = ext;
+            break;
+        }
+    }
+
+    string output_path = ".cache/" + name + "-" + version + extension;
+
+    // Create .cache so it never fails to DEBI.
     std::filesystem::create_directories(".cache");
     std::ofstream file(output_path, std::ios::binary);
     if (!file) {
@@ -63,8 +73,8 @@ string download_source(const string &source_url, const string &name,
     curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "https");
     curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "https");
 
-    CURLcode result =
-    curl_easy_perform(curl); // The actual download process here.
+    std::cout<<"Downloading "<<name<<"-"<<version<<"...\n";
+    CURLcode result = curl_easy_perform(curl); // The actual download process here.
     std::cout << '\n';
     long http_code{0};
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);

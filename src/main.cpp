@@ -1,15 +1,18 @@
+
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <filesystem>
+
 #include "recipe.hpp"
 #include "download.hpp"
 #include "sha256.hpp"
-#include <filesystem>
+#include "extract.hpp"
 
 using std::string;
 
 void smversion() {
-    constexpr std::string_view version{"0.01"};
+    constexpr std::string_view version{"0.03"};
     std::cout<<"smect v"<<version<<'\n';
 }
 
@@ -31,7 +34,9 @@ int main(int argc, char* argv[]) {
         std::cout<<"Please enter a command and optionally a package.\n";
         return 1;
     }
+
     string command = argv[1];
+
     // command line interactions so commands actually do something
     if (command == "--help") {
         show_help();
@@ -47,21 +52,25 @@ int main(int argc, char* argv[]) {
         std::cout<<"Usage: smect <command> [package]\n";
         return 1;
     }
+
     string package = argv[2];
+
     if (command == "install") {
         std::string recipe_path = "recipes/" + package + "/package.toml";
-        
+
         if (!std::filesystem::is_regular_file(recipe_path)) {
             std::cerr << "Package not found: " << package << '\n';
             return 1;
         }
 
         Package info = read_recipe(recipe_path);
-        
+
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
             std::cerr<<"Invalid or incomplete package recipe.\n";
             return 1;
         }
+
+        // Download the package and save the archive path so we can use it later.
         string archive = download_source(info.url, info.name, info.version);
 
         if (archive.empty()) {
@@ -71,12 +80,21 @@ int main(int argc, char* argv[]) {
         if (!verify_sha256(archive, info.sha256)) {
             return 1;
         }
+
+        // Extract the downloaded archive after verifying its SHA-256.
+        if (!extract_source(archive, info.name, info.version, ".cache/build")) {
+            std::cerr << "Extraction failed.\n";
+            return 1;
+        }
+
     } else if (command == "remove") {
         std::cout<<"Removing "<<package<<"..\n";
         return 0;
+
     } else if (command == "search") {
         std::cout<<"Searching for "<<package<<"...\n";
         std::cout<<"Found package: "<<package<<".\n";
+
     } else { // check if its a proper command if not then quit with an error.
         std::cout<<"Unknown command: "<<argv[1]<<".\n";
         return 1;

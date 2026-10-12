@@ -9,10 +9,12 @@ It is an independent package manager that anyone can use, if you would like to h
 - TOML Recipes
 - SHA256 Verification
 - Archive Extraction
+- Source building (Which only supports CMake, Make, and Meson.)
 
 ## Dependencies
 - libarchive
 - libcurl
+- libcrypto
 - Meson
 - Ninja
 
@@ -31,5 +33,4 @@ sudo meson install -C build
 ```
 
 ## Status
-It's able to download a source tarball into a cache file, verify with SHA256, and extract
-it into a build dir in the cache directory.
+It's able to download a source tarball into a cache file, verify with SHA256, extract, and build it.

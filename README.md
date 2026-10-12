@@ -31,5 +31,5 @@ sudo meson install -C build
 ```
 
 ## Status
-It's able to download a source tarball into a cache file and has
-sha256 verification.
+It's able to download a source tarball into a cache file, verify with SHA256, and extract
+it into a build dir in the cache directory.

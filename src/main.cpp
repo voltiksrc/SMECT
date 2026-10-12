@@ -8,6 +8,7 @@
 #include "download.hpp"
 #include "sha256.hpp"
 #include "extract.hpp"
+#include "build.hpp"
 
 using std::string;
 
@@ -87,6 +88,10 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
+        if (!build_source(info, ".cache/build/zlib-1.3.2/zlib-1.3.2")) {
+            std::cerr<<"Build failed.\n";
+            return 1;
+        }
     } else if (command == "remove") {
         std::cout<<"Removing "<<package<<"..\n";
         return 0;

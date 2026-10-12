@@ -11,6 +11,7 @@ Package read_recipe(const std::string& path) {
     package.version = recipe["package"]["version"].value_or("");
     package.url = recipe["source"]["url"].value_or("");
     package.sha256 = recipe["source"]["sha256"].value_or("");
+    package.build_system = recipe["build"]["system"].value_or("");
 
     return package;
 }

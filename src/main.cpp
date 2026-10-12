@@ -12,11 +12,12 @@
 
 using std::string;
 
+// version command 
 void smversion() {
     constexpr std::string_view version{"0.03"};
     std::cout<<"smect v"<<version<<'\n';
 }
-
+// help command
 void show_help() {
     std::cout<<"SMECT Package manager help\n";
     std::cout<<'\n';
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
         std::cout<<"Usage: smect <command> [package]\n";
         return 1;
     }
-
+    // Since we confirmed that argv[2] exists, we can declare it as the main package.
     string package = argv[2];
 
     if (command == "install") {
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
         }
 
         Package info = read_recipe(recipe_path);
-
+        // Checks if any of the stages are empty and if it is we exit before doing the DEBI steps.
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
             std::cerr<<"Invalid or incomplete package recipe.\n";
             return 1;
@@ -73,11 +74,11 @@ int main(int argc, char* argv[]) {
 
         // Download the package and save the archive path so we can use it later.
         string archive = download_source(info.url, info.name, info.version);
-
+     
         if (archive.empty()) {
             return 1;
         }
-
+        // SHA256 call
         if (!verify_sha256(archive, info.sha256)) {
             return 1;
         }
@@ -88,7 +89,13 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        if (!build_source(info, ".cache/build/zlib-1.3.2/zlib-1.3.2")) {
+        std::filesystem::path source_dir =
+        std::filesystem::path(".cache/build") /
+        (info.name + "-" + info.version) /
+        (info.name + "-" + info.version);
+        
+        // build the package after extracting.
+        if (!build_source(info, source_dir)) {
             std::cerr<<"Build failed.\n";
             return 1;
         }

@@ -193,6 +193,6 @@ bool extract_source(const string &archive_path, const string &name,
     return false;
   }
 
-  std::cout << "Extraction completed successfully.\n";
+  std::cout << "Extraction completed successfully.\n\n";
   return true;
 }

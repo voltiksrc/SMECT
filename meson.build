@@ -11,6 +11,7 @@ executable('smect',
   'src/sha256.cpp',
   'src/extract.cpp',
   'src/build.cpp',
+  'src/install.cpp',
   dependencies: [curl_dep, crypto, archive_dep],
   install: true,
 )

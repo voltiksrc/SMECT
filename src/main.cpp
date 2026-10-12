@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -9,31 +8,41 @@
 #include "sha256.hpp"
 #include "extract.hpp"
 #include "build.hpp"
+#include "install.hpp"
 
 using std::string;
+namespace fs = std::filesystem;
 
-// version command 
+bool is_source_root(const fs::path& path) {
+    return fs::exists(path / "meson.build") ||
+           fs::exists(path / "CMakeLists.txt") ||
+           fs::exists(path / "configure") ||
+           fs::exists(path / "Makefile");
+}
+
+// version command
 void smversion() {
     constexpr std::string_view version{"0.03"};
-    std::cout<<"smect v"<<version<<'\n';
+    std::cout << "smect v" << version << '\n';
 }
+
 // help command
 void show_help() {
-    std::cout<<"SMECT Package manager help\n";
-    std::cout<<'\n';
-    std::cout<<"Example: smect install fastfetch\n";
-    std::cout<<"Options:\n";
-    std::cout<<"smect install <package>\n";
-    std::cout<<"smect remove <package>\n";
-    std::cout<<"smect search <package>\n";
-    std::cout<<"smect --help\n";
+    std::cout << "SMECT Package manager help\n";
+    std::cout << '\n';
+    std::cout << "Example: smect install fastfetch\n";
+    std::cout << "Options:\n";
+    std::cout << "smect install <package>\n";
+    std::cout << "smect remove <package>\n";
+    std::cout << "smect search <package>\n";
+    std::cout << "smect --help\n";
 }
 
 int main(int argc, char* argv[]) {
     // We need to check before declaring the command as argv[1].
     // If we dont then running smect without arguments could cause an error.
     if (argc < 2) {
-        std::cout<<"Please enter a command and optionally a package.\n";
+        std::cout << "Please enter a command and optionally a package.\n";
         return 1;
     }
 
@@ -51,33 +60,36 @@ int main(int argc, char* argv[]) {
     // Make sure they enter a package so we can safely assign
     // argv[2] to the package variable placeholder.
     if (argc != 3) {
-        std::cout<<"Usage: smect <command> [package]\n";
+        std::cout << "Usage: smect <command> [package]\n";
         return 1;
     }
+
     // Since we confirmed that argv[2] exists, we can declare it as the main package.
     string package = argv[2];
 
     if (command == "install") {
         std::string recipe_path = "recipes/" + package + "/package.toml";
 
-        if (!std::filesystem::is_regular_file(recipe_path)) {
+        if (!fs::is_regular_file(recipe_path)) {
             std::cerr << "Package not found: " << package << '\n';
             return 1;
         }
 
         Package info = read_recipe(recipe_path);
+
         // Checks if any of the stages are empty and if it is we exit before doing the DEBI steps.
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
-            std::cerr<<"Invalid or incomplete package recipe.\n";
+            std::cerr << "Invalid or incomplete package recipe.\n";
             return 1;
         }
 
         // Download the package and save the archive path so we can use it later.
         string archive = download_source(info.url, info.name, info.version);
-     
+
         if (archive.empty()) {
             return 1;
         }
+
         // SHA256 call
         if (!verify_sha256(archive, info.sha256)) {
             return 1;
@@ -89,26 +101,52 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        std::filesystem::path source_dir =
-        std::filesystem::path(".cache/build") /
-        (info.name + "-" + info.version) /
-        (info.name + "-" + info.version);
-        
-        // build the package after extracting.
-        if (!build_source(info, source_dir)) {
-            std::cerr<<"Build failed.\n";
+        // Find the source directory.
+        fs::path extract_dir = fs::path(".cache/build") /
+                               (info.name + "-" + info.version);
+        fs::path source_dir;
+
+        if (is_source_root(extract_dir)) {
+            source_dir = extract_dir;
+        } else {
+            for (const auto& entry : fs::directory_iterator(extract_dir)) {
+                if (entry.is_directory() && is_source_root(entry.path())) {
+                    source_dir = entry.path();
+                    break;
+                }
+            }
+        }
+
+        if (source_dir.empty()) {
+            std::cerr << "Could not locate package source directory.\n";
             return 1;
         }
+
+        // build the package after extracting.
+        if (!build_source(info, source_dir)) {
+            std::cerr << "Build failed.\n";
+            return 1;
+        }
+
+        // Stage the compiled package.
+        fs::path stage_dir = fs::path(".cache/stage") /
+                             (info.name + "-" + info.version);
+
+        if (!install_source(info, source_dir, stage_dir)) {
+            std::cerr << "Installation staging failed.\n";
+            return 1;
+        }
+
     } else if (command == "remove") {
-        std::cout<<"Removing "<<package<<"..\n";
+        std::cout << "Removing " << package << "..\n";
         return 0;
 
     } else if (command == "search") {
-        std::cout<<"Searching for "<<package<<"...\n";
-        std::cout<<"Found package: "<<package<<".\n";
+        std::cout << "Searching for " << package << "...\n";
+        std::cout << "Found package: " << package << ".\n";
 
     } else { // check if its a proper command if not then quit with an error.
-        std::cout<<"Unknown command: "<<argv[1]<<".\n";
+        std::cout << "Unknown command: " << argv[1] << ".\n";
         return 1;
     }
 }

@@ -8,6 +8,7 @@ It is an independent package manager that anyone can use, if you would like to h
 - Source tarball downloads
 - TOML Recipes
 - SHA256 Verification
+- Archive Extraction
 
 ## Dependencies
 - libarchive

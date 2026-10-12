@@ -1,3 +1,20 @@
+# Build files
 build/
+compile_commands.json
+
+# Cache files
 .cache/
-.clang-format
+
+# Compiled files
+*.o
+*.a
+*.so
+*.so.*
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.log

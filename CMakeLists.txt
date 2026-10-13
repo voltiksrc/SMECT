@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(smect VERSION 0.3 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(PkgConfig REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+pkg_check_modules(CURL REQUIRED IMPORTED_TARGET libcurl)
+pkg_check_modules(ARCHIVE REQUIRED IMPORTED_TARGET libarchive)
+pkg_check_modules(TOMLPLUSPLUS REQUIRED IMPORTED_TARGET tomlplusplus)
+
+add_executable(smect
+    src/main.cpp
+    src/recipe.cpp
+    src/download.cpp
+    src/sha256.cpp
+    src/extract.cpp
+    src/build.cpp
+    src/install.cpp
+)
+
+target_link_libraries(smect PRIVATE
+    PkgConfig::CURL
+    PkgConfig::ARCHIVE
+    PkgConfig::TOMLPLUSPLUS
+    OpenSSL::Crypto
+)
+
+install(TARGETS smect RUNTIME DESTINATION bin)
+

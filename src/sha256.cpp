@@ -1,4 +1,5 @@
 #include "sha256.hpp"
+#include "output.hpp"
 
 #include <openssl/evp.h>
 
@@ -15,7 +16,7 @@ bool verify_sha256(const std::string& file_path,
     std::ifstream file(file_path, std::ios::binary);
 
     if (!file) {
-        std::cerr << "Could not open file for SHA-256 verification.\n";
+        output::error("Could not open file for SHA-256 verification.");
         return false;
     }
 
@@ -23,12 +24,12 @@ bool verify_sha256(const std::string& file_path,
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
 
     if (!ctx) {
-        std::cerr << "Failed to create SHA-256 context.\n";
+        output::error("Failed to create SHA-256 context.");
         return false;
     }
 
     if (EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr) != 1) {
-        std::cerr << "Failed to initialize SHA-256.\n";
+        output::error("Failed to initialize SHA-256.");
         EVP_MD_CTX_free(ctx);
         return false;
     }
@@ -43,7 +44,7 @@ bool verify_sha256(const std::string& file_path,
         if (bytes_read > 0) {
             if (EVP_DigestUpdate(ctx, buffer.data(),
                                  static_cast<std::size_t>(bytes_read)) != 1) {
-                std::cerr << "Failed to update SHA-256.\n";
+                output::error("Failed to update SHA-256.");
                 EVP_MD_CTX_free(ctx);
                 return false;
             }
@@ -51,7 +52,7 @@ bool verify_sha256(const std::string& file_path,
     }
 
     if (file.bad()) {
-        std::cerr << "Failed to read file during verification.\n";
+        output::error("Failed to read file during verification.");
         EVP_MD_CTX_free(ctx);
         return false;
     }
@@ -61,7 +62,7 @@ bool verify_sha256(const std::string& file_path,
     unsigned int digest_length = 0;
 
     if (EVP_DigestFinal_ex(ctx, digest, &digest_length) != 1) {
-        std::cerr << "Failed to finalize SHA-256.\n";
+        output::error("Failed to finalize SHA-256.");
         EVP_MD_CTX_free(ctx);
         return false;
     }
@@ -70,7 +71,7 @@ bool verify_sha256(const std::string& file_path,
 
     // A SHA-256 digest should always be 32 bytes.
     if (digest_length != 32) {
-        std::cerr << "Unexpected SHA-256 digest length.\n";
+        output::error("Unexpected SHA-256 digest length.");
         return false;
     }
 
@@ -88,18 +89,17 @@ bool verify_sha256(const std::string& file_path,
     if (expected_hash.size() != 64 ||
         expected_hash.find_first_not_of("0123456789abcdefABCDEF") !=
             std::string::npos) {
-        std::cerr << "Invalid SHA-256 checksum in recipe.\n";
+        output::error("Invalid SHA-256 checksum in recipe.");
         return false;
     }
 
     if (actual_hash != expected_hash) {
-        std::cerr << "SHA-256 verification failed!\n";
-        std::cerr << "Expected: " << expected_hash << '\n';
-        std::cerr << "Actual:   " << actual_hash << '\n';
+        output::error("SHA-256 verification failed!");
+        output::info("Expected: " + expected_hash);
+        output::info("Actual:   " + actual_hash);
         return false;
     }
-
-    std::cout << "SHA-256 verified successfully.\n";
-    std::cout << "HASH DOES = "<<actual_hash<<"!\n";
+    output::info("SHA-256 verified successfully.");
+    output::info("HASH DOES = "+actual_hash);
     return true;
 }

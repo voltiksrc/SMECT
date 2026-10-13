@@ -9,6 +9,7 @@
 #include "extract.hpp"
 #include "build.hpp"
 #include "install.hpp"
+#include "output.hpp"
 
 using std::string;
 namespace fs = std::filesystem;
@@ -79,25 +80,30 @@ int main(int argc, char* argv[]) {
 
         // Checks if any of the stages are empty and if it is we exit before doing the DEBI steps.
         if (info.name.empty() || info.version.empty() || info.url.empty()) {
-            std::cerr << "Invalid or incomplete package recipe.\n";
+            output::error("Invalid or incomplete package recipe.");
             return 1;
         }
 
         // Download the package and save the archive path so we can use it later.
+        output::stage("Downloading " + info.name + "...");
         string archive = download_source(info.url, info.name, info.version);
-
+        
         if (archive.empty()) {
             return 1;
         }
 
         // SHA256 call
+        output::stage("Verifying SHA-256");
+  
         if (!verify_sha256(archive, info.sha256)) {
             return 1;
         }
 
         // Extract the downloaded archive after verifying its SHA-256.
+        output::stage("Extracting sources");
+  
         if (!extract_source(archive, info.name, info.version, ".cache/build")) {
-            std::cerr << "Extraction failed.\n";
+            output::error("Extraction failed.");
             return 1;
         }
 
@@ -118,35 +124,37 @@ int main(int argc, char* argv[]) {
         }
 
         if (source_dir.empty()) {
-            std::cerr << "Could not locate package source directory.\n";
+            output::error("Could not locate package source directory.\n");
             return 1;
         }
 
         // build the package after extracting.
+        output::stage("Building " + info.name + "-" + info.version);
         if (!build_source(info, source_dir)) {
-            std::cerr << "Build failed.\n";
-            return 1;
+             return 1;
         }
 
         // Stage the compiled package.
         fs::path stage_dir = fs::path(".cache/stage") /
                              (info.name + "-" + info.version);
 
+        output::stage("Staging " + info.name + "-" + info.version);
         if (!install_source(info, source_dir, stage_dir)) {
-            std::cerr << "Installation staging failed.\n";
+            output::error("Installation staging failed.");
             return 1;
         }
-
+        output::info("Files staged successfully.");
     } else if (command == "remove") {
-        std::cout << "Removing " << package << "..\n";
+        std::cout << ">>> Removing " << package << "..\n";
         return 0;
 
     } else if (command == "search") {
-        std::cout << "Searching for " << package << "...\n";
-        std::cout << "Found package: " << package << ".\n";
+        std::cout << ">>> Searching for " << package << "...\n";
+        std::cout << ">>> Found package: " << package << ".\n";
 
     } else { // check if its a proper command if not then quit with an error.
-        std::cout << "Unknown command: " << argv[1] << ".\n";
+        std::cerr<<"!!! Unknown command: "<<argv[1]<<".\n";
         return 1;
     }
+    return 0;
 }

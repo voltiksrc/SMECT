@@ -10,12 +10,14 @@ It is an independent package manager that anyone can use, if you would like to h
 - SHA256 Verification
 - Archive Extraction
 - Source building (Which only supports CMake, Make, and Meson.)
+- Install staging
 
 ## Dependencies
 - libarchive
 - libcurl
 - libcrypto
-- Meson
+- CMake
+- toml++
 - Ninja
 
 ## Build
@@ -33,4 +35,5 @@ sudo meson install -C build
 ```
 
 ## Status
-It's able to download a source tarball into a cache file, verify with SHA256, extract, and build it.
+It's able to download a source tarball into a cache file, verify with SHA256, extract,
+build it, and finally stage it.(Im almost at installation)

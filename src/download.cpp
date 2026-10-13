@@ -24,7 +24,7 @@ int progress_callback(void* clientp, curl_off_t dltotal,
     // Your existing progress bar logic here
     if (dltotal > 0) {
         int percentage;
-        const int bar_width = 20;
+        constexpr int bar_width = 22;
         int filled;
         // Calculations here:
         percentage = static_cast<double>(dlnow) / dltotal * 100;
@@ -119,7 +119,6 @@ string download_source(const string &source_url, const string &name,
     curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "https");
     curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "https");
 
-    std::cout<<"Downloading "<<name<<"-"<<version<<"...\n";
     CURLcode result = curl_easy_perform(curl); // The actual download process here.
     std::cout << '\n';
     // long http_code{0};

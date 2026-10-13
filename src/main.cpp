@@ -39,37 +39,8 @@ void show_help() {
     std::cout << "smect --help\n";
 }
 
-int main(int argc, char* argv[]) {
-    // We need to check before declaring the command as argv[1].
-    // If we dont then running smect without arguments could cause an error.
-    if (argc < 2) {
-        std::cout << "Please enter a command and optionally a package.\n";
-        return 1;
-    }
-
-    string command = argv[1];
-
-    // command line interactions so commands actually do something
-    if (command == "--help") {
-        show_help();
-        return 0;
-    } else if (command == "--version") {
-        smversion();
-        return 0;
-    }
-
-    // Make sure they enter a package so we can safely assign
-    // argv[2] to the package variable placeholder.
-    if (argc != 3) {
-        std::cout << "Usage: smect <command> [package]\n";
-        return 1;
-    }
-
-    // Since we confirmed that argv[2] exists, we can declare it as the main package.
-    string package = argv[2];
-
-    if (command == "install") {
-        std::string recipe_path = "recipes/" + package + "/package.toml";
+bool install_package(const string& package) {
+    std::string recipe_path = "recipes/" + package + "/package.toml";
 
         if (!fs::is_regular_file(recipe_path)) {
             std::cerr << "Package not found: " << package << '\n';
@@ -144,6 +115,45 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         output::info("Files staged successfully.");
+        return true;
+}
+
+int main(int argc, char* argv[]) {
+    // We need to check before declaring the command as argv[1].
+    // If we dont then running smect without arguments could cause an error.
+    if (argc < 2) {
+        std::cout << "Please enter a command and optionally a package.\n";
+        return 1;
+    }
+
+    string command = argv[1];
+
+    // command line interactions so commands actually do something
+    if (command == "--help") {
+        show_help();
+        return 0;
+    } else if (command == "--version") {
+        smversion();
+        return 0;
+    }
+
+    // Make sure they enter a package so we can safely assign
+    // argv[2] to the package variable placeholder.
+    if (argc < 3) {
+        std::cout << "Usage: smect <command> [package]\n";
+        return 1;
+    }
+
+    // Since we confirmed that argv[2] exists, we can declare it as the main package.
+    string package = argv[2];
+
+    if (command == "install") {
+        for (int i = 2; i < argc; ++i) {
+            if (!install_package(argv[i])) {
+                return 1;
+            }
+        }
+        
     } else if (command == "remove") {
         std::cout << ">>> Removing " << package << "..\n";
         return 0;

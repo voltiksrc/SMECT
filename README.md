@@ -1,5 +1,5 @@
 # SMECT
-A C++ package manager that uses TOML recipes to deliver very fast DEBI speeds.
+A Hybrid C++ package manager that uses TOML recipes and has a simple codebase.
 
 ## Development
 It is an independent package manager that anyone can use, if you would like to help develop SMECT, then please contact me at: voltiksrc@gmail.com

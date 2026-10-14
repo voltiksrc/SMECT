@@ -79,10 +79,10 @@ string download_source(const string &source_url, const string &name,
         }
     }
 
-    string output_path = ".cache/smect/" + name + "-" + version + extension;
+    string output_path = ".cache/tbdownload/" + name + "-" + version + extension;
 
-    // Create .cache/smect so it never fails to DEBI.
-    std::filesystem::create_directories(".cache/smect");
+    // Create .cache/tarballdownload so it never fails to Download the tarballs.
+    std::filesystem::create_directories(".cache/tbdownload");
     std::ofstream file(output_path, std::ios::binary);
     if (!file) {
         std::cerr << "Failed to open output file\n";
@@ -102,7 +102,7 @@ string download_source(const string &source_url, const string &name,
     // Follow HTTP redirects.
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-    // Treat HTTP error responses (such as 404) as failures.
+    // tarballdownload HTTP error responses (ownload the tarballsh as 404) as failures.
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 
     Progress progress{};
@@ -122,8 +122,8 @@ string download_source(const string &source_url, const string &name,
     CURLcode result = curl_easy_perform(curl); // The actual download process here.
     std::cout << '\n';
     // long http_code{0};
-    // curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-    // print a newline and make sure to exit if the download fails.
+    // curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code
+   // print a newline and make sure to exit if the download fails.
     file.close();
 
     if (result != CURLE_OK) {

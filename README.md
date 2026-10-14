@@ -34,6 +34,16 @@ meson compile -C build
 sudo meson install -C build
 ```
 
+## Usage
+Binary install(later):
+```bash
+sudo smect install fastfetch
+```
+Source install:
+```bash
+sudo smect install fastfetch --source
+```
+
 ## Status
 It's able to download a source tarball into a cache file, verify with SHA256, extract,
 build it, and finally stage it.(Im almost at installation)

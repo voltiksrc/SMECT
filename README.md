@@ -1,10 +1,13 @@
 # SMECT
+
 A Hybrid C++ package manager that uses TOML recipes and has a simple codebase.
 
 ## Development
+
 It is an independent package manager that anyone can use, if you would like to help develop SMECT, then please contact me at: voltiksrc@gmail.com
 
 ## Features
+
 - Source tarball downloads
 - TOML Recipes
 - SHA256 Verification
@@ -13,6 +16,7 @@ It is an independent package manager that anyone can use, if you would like to h
 - Install staging
 
 ## Dependencies
+
 - libarchive
 - libcurl
 - libcrypto
@@ -21,29 +25,38 @@ It is an independent package manager that anyone can use, if you would like to h
 - Ninja
 
 ## Build
+
 ```bash
 git clone https://github.com/voltiksrc/SMECT.git
 cd SMECT
 ```
+
 ```bash
 meson setup build
 meson compile -C build
 ```
+
 ## Install
+
 ```bash
 sudo meson install -C build
 ```
 
 ## Usage
+
 Binary install(later):
+
+```bash
+sudo smect install fastfetch --binary
+```
+
+Source install:
+
 ```bash
 sudo smect install fastfetch
 ```
-Source install:
-```bash
-sudo smect install fastfetch --source
-```
 
 ## Status
+
 It's able to download a source tarball into a cache file, verify with SHA256, extract,
 build it, and finally stage it.(Im almost at installation)

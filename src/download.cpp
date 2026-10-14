@@ -50,7 +50,7 @@ int progress_callback(void* clientp, curl_off_t dltotal,
 
 // Main libcurl function that writes our data to a file so we can DEBI
 // peacefully.
-size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
+static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
     size_t total = size * nmemb;
 
     auto *file = static_cast<std::ofstream *>(userdata);

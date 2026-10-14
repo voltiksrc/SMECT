@@ -20,6 +20,7 @@ add_executable(smect
     src/extract.cpp
     src/build.cpp
     src/install.cpp
+    src/sync.cpp
 )
 
 target_link_libraries(smect PRIVATE

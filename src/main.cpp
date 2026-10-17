@@ -24,20 +24,20 @@ bool is_source_root(const fs::path &path) {
 // version command
 void smversion() {
   constexpr std::string_view version{"0.03"};
-  std::cout << "smect v" << version << '\n';
+  std::cout << "omi v" << version << '\n';
 }
 
 // help command
 void show_help() {
-  std::cout << "SMECT Package manager help\n";
+  std::cout << "Omi Package manager help\n";
   std::cout << '\n';
-  std::cout << "Example: smect install fastfetch\n";
+  std::cout << "Example: sudo omi install fastfetch\n";
   std::cout << "Options:\n";
-  std::cout << "smect install <package>\n";
-  std::cout << "smect remove <package>\n";
-  std::cout << "smect search <package>\n";
-  std::cout << "smect --help\n";
-  std::cout << "smect --sync\n";
+  std::cout << "omi install <package>\n";
+  std::cout << "omi remove <package>\n";
+  std::cout << "omi search <package>\n";
+  std::cout << "omi --help\n";
+  std::cout << "omi --sync\n";
 }
 
 bool install_package(const string &package) {
@@ -122,7 +122,7 @@ bool install_package(const string &package) {
 
 int main(int argc, char *argv[]) {
   // We need to check before declaring the command as argv[1].
-  // If we dont then running smect without arguments could cause an error.
+  // If we dont then running omi without arguments could cause an error.
   if (argc < 2) {
     std::cout << "Please enter a command and optionally a package.\n";
     return 1;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
   // Make sure they enter a package so we can safely assign
   // argv[2] to the package variable placeholder.
   if (argc < 3) {
-    std::cout << "Usage: smect <command> [package]\n";
+    std::cout << "Usage: omi <command> [package]\n";
     return 1;
   }
 

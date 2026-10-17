@@ -27,7 +27,7 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdat
 
 bool sync_repositories() {
     // INDEX url which we will download for package recipes.
-    string url = "https://raw.githubusercontent.com/voltiksrc/SMECT-Inventory/main/index.toml";
+    string url = "https://raw.githubusercontent.com/voltiksrc/omi-inventory/main/index.toml";
 
     // Make variables for paths so I dont typo.
     namespace fs = std::filesystem;

@@ -1,10 +1,10 @@
-# SMECT
+# omi
 
 A Hybrid C++ package manager that uses TOML recipes and has a simple codebase.
 
 ## Development
 
-It is an independent package manager that anyone can use, if you would like to help develop SMECT, then please contact me at: voltiksrc@gmail.com
+It is an independent package manager that anyone can use, if you would like to help develop omi, then please contact me at: voltiksrc@gmail.com
 
 ## Features
 
@@ -27,8 +27,8 @@ It is an independent package manager that anyone can use, if you would like to h
 ## Build
 
 ```bash
-git clone https://github.com/voltiksrc/SMECT.git
-cd SMECT
+git clone https://github.com/voltiksrc/omi.git
+cd omi
 ```
 
 ```bash
@@ -47,13 +47,13 @@ sudo meson install -C build
 Binary install(later):
 
 ```bash
-sudo smect install fastfetch --binary
+sudo omi install fastfetch --binary
 ```
 
 Source install:
 
 ```bash
-sudo smect install fastfetch
+sudo omi install fastfetch
 ```
 
 ## Status

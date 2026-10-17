@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(smect VERSION 0.3 LANGUAGES CXX)
+project(omi VERSION 0.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,5 +30,5 @@ target_link_libraries(smect PRIVATE
     OpenSSL::Crypto
 )
 
-install(TARGETS smect RUNTIME DESTINATION bin)
+install(TARGETS omi RUNTIME DESTINATION bin)
 
